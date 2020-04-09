@@ -139,12 +139,32 @@ var systemMonitor = new Vue({
     }
 });
 
-var si = require('systeminformation');
-var ip = require('ip');
+let si = require('systeminformation');
+let os = require('os');
+let ifaces = os.networkInterfaces();
 
 function updateSi() { // Gather params
 
-    var sysInfo = {cpu:0,mem:0,temp:0};
+    let addressList = [];
+    Object.keys(ifaces).forEach(function (ifname) {
+        var alias = 0;
+
+        ifaces[ifname].forEach(function (iface) {
+            if ('IPv4' !== iface.family || iface.internal !== false) {
+                return;
+            }
+
+            if (alias >= 1) {
+                console.log(ifname + ':' + alias, iface.address);
+            } else {
+                console.log(ifname, iface.address);
+            }
+            addressList.push(iface.address);
+            ++alias;
+        });
+    });
+
+    let sysInfo = {cpu:0,mem:0,temp:0};
 
     si.currentLoad(function(data) {
         sysInfo.cpu = data.currentload;
@@ -158,7 +178,7 @@ function updateSi() { // Gather params
                 systemMonitor.system.cpu = sysInfo.cpu.toPrecision(3).toString() + ' %';
                 systemMonitor.system.mem = sysInfo.mem.toPrecision(2).toString() + ' %';
                 systemMonitor.system.temp = sysInfo.temp.toPrecision(3).toString() + ' °C';
-                systemMonitor.system.ip = ip.address();
+                systemMonitor.system.ip = addressList.join(", ");
 
             });
         });
