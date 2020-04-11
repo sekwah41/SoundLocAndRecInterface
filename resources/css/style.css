@@ -1,5 +1,10 @@
 /* Sticky footer styles
 -------------------------------------------------- */
+
+:root {
+    --main-accent-color: #00994d;
+}
+
 html {
   position: relative;
   min-height: 100%;
@@ -14,9 +19,9 @@ body {
   width: 100%;
   /* Set the fixed height of the footer here */
   height: 30px;
-  background-color: #00994d;
+  background-color: var(--main-accent-color);
     border-top-style: solid;
-    border-top: thin solid #00994d;
+    border-top: thin solid var(--main-accent-color);
 }
 
 .footer .text-muted, .footer a{

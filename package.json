@@ -9,7 +9,7 @@
   "author": "Cedric Godin",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^5.0.3"
+    "electron": "^8.2.1"
   },
   "dependencies": {
     "@google-cloud/speech": "^3.2.0",
