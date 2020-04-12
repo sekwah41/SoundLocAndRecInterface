@@ -1,11 +1,12 @@
+'use strict';
 /*
  * ODAS Launcher
  */
 
 const dialog = require('electron').remote.dialog
 
-const core_path_field = document.getElementById('odas-core-path')
-const config_path_field = document.getElementById('odas-config-path')
+//const core_path_field = document.getElementById('odas-core-path')
+//const config_path_field = document.getElementById('odas-config-path')
 const launch_btn = document.getElementById('odas-btn')
 
 const odas_local_well = document.getElementById('odas-local')
@@ -14,7 +15,7 @@ const odas_remote_well = document.getElementById('odas-remote')
 let odas_core_path
 let odas_config_path
 
-if(localStorage.odas_core_path) {
+/*if(localStorage.odas_core_path) {
   odas_core_path = localStorage.odas_core_path
   core_path_field.value = odas_core_path
 }
@@ -22,9 +23,9 @@ if(localStorage.odas_core_path) {
 if(localStorage.odas_config_path) {
   odas_config_path = localStorage.odas_config_path
   config_path_field.value = odas_config_path
-}
+}*/
 
-
+/*
 core_path_field.addEventListener('click', function() {
 
   dialog.showOpenDialog(
@@ -38,9 +39,9 @@ core_path_field.addEventListener('click', function() {
           localStorage.odas_core_path = odas_core_path
         }
       })
-})
+})*/
 
-
+/*
 config_path_field.addEventListener('click', function() {
 
   dialog.showOpenDialog(
@@ -54,7 +55,7 @@ config_path_field.addEventListener('click', function() {
           localStorage.odas_config_path = odas_config_path
         }
       })
-})
+})*/
 
 
 const launchOdas = function() {
@@ -103,7 +104,7 @@ const stopOdas = function() {
   setTimeout(function() {document.dispatchEvent(new Event('clearChart'));}, 1000)
 }
 
-launch_btn.addEventListener('click', launchOdas)
+/*launch_btn.addEventListener('click', launchOdas)*/
 
 
 ipcRenderer.on('launched-odas', function(sender, ok) {
@@ -117,7 +118,6 @@ ipcRenderer.on('launched-odas', function(sender, ok) {
 ipcRenderer.on('remote-online', function(ip) {
   odas_remote_well.style.display = 'block'
   odas_local_well.style.display = 'none'
-
 })
 
 ipcRenderer.on('remote-offline', function() {
