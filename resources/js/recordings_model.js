@@ -8,209 +8,212 @@ const speechToText = require('./../resources/js/speech-to-text.js');
 
 // Fuzzy recording class
 class FuzzyRecording {
-  constructor(fullPath) {
+    constructor(fullPath) {
 
-    this.filename = path.basename(fullPath)
-    this.path = fullPath
-    this.timestamp = new Date()
-    this.transcription = ''
-    this.potentialTranscription = ''
-  }
+        this.filename = path.basename(fullPath)
+        this.path = fullPath
+        this.timestamp = new Date()
+        this.transcription = ''
+        this.potentialTranscription = ''
+    }
 }
 
 // Single recording class
 class Recording {
 
-  constructor(fullPath, transcription) {
+    constructor(fullPath, transcription) {
 
-    // Init audio recording
-    this.isPlaying = false
-    this.timestamp = new Date()
-    this.path = fullPath
-    this.filename = path.basename(this.path)
-    this.duration = 0
-    this.audio = undefined
-    this.deleting = 'hidden'
-    this.transcription = 'Not available'
-    this.potentialTranscription = ''
+        console.log("Recording constructor")
 
-    this.readInfo(true)
+        // Init audio recording
+        this.isPlaying = false
+        this.timestamp = new Date()
+        this.path = fullPath
+        this.filename = path.basename(this.path)
+        this.duration = 0
+        this.audio = undefined
+        this.deleting = 'hidden'
+        this.transcription = 'Not available'
+        this.potentialTranscription = ''
 
-    if(typeof(transcription) !== 'undefined') {
-        this.transcription = transcription
+        this.readInfo(true)
+
+        if(typeof(transcription) !== 'undefined') {
+            this.transcription = transcription
+            const txtPath = this.path.slice(0, -4)+'.txt';
+            fs.writeFile(txtPath, transcription, (err) => {
+                if(err) console.log(err);
+            })
+        }
+
+        else {
+            this.createTranscript();
+        }
+
+    }
+
+    readInfo(retry) {
+        // Read duration from wave file
+        info.infoByFilename(this.path, (err, info) => {
+            if(err == null) {
+
+                this.duration = info.duration
+                this.timestamp = new Date(info.stats.birthtime)
+
+                RecordingsModel.recordings.sort((a,b) => {
+                    if(a.timestamp < b.timestamp)
+                        return 1
+
+                    else if(a.timestamp > b.timestamp)
+                        return -1
+
+                    else {
+                        return 0
+                    }
+                })
+            }
+
+            else {
+                this.duration = -1
+                console.log(err)
+                if(retry) {
+                    setTimeout(() => { this.readInfo(false)}, 3000)
+                }
+            }
+        })
+    }
+
+    createTranscript() {
+        console.log("Create transcript");
+
         const txtPath = this.path.slice(0, -4)+'.txt';
-        fs.writeFile(txtPath, transcription, (err) => {
+
+        fs.readFile(txtPath, 'utf-8', (err, data) => {
+            if(err) {
+                console.log('Getting transcript of ' + this.path);
+                this.transcription = 'Processing...'
+                speechToText.processFile(this.path)
+                    .then(transcription => {
+                        this.transcription = transcription;
+                        fs.writeFile(txtPath, transcription, (err) => {
+                            if(err) console.log(err);
+                        })
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        this.transcription = "Couldn't process";
+                    });
+            }
+
+            else {
+                this.transcription = data;
+            }
+        });
+    }
+
+    play() {
+        this.isPlaying = true
+
+        this.audio = new Audio(this.path)
+
+        this.audio.onended = () => {
+
+            this.isPlaying = false
+            this.audio = undefined
+        }
+
+        this.audio.play()
+    }
+
+    stop() {
+        this.isPlaying = false
+
+        if(typeof(this.audio) != 'undefined') {
+
+            this.audio.pause()
+            this.audio = undefined
+        }
+    }
+
+    saveTranscription() {
+        const txtPath = this.path.slice(0, -4)+'.txt'
+        fs.writeFile(txtPath, this.transcription + this.potentialTranscription, (err) => {
             if(err) console.log(err);
         })
     }
-
-    else {
-        this.createTranscript();
-    }
-
-  }
-
-  readInfo(retry) {
-    // Read duration from wave file
-    info.infoByFilename(this.path, (err, info) => {
-      if(err == null) {
-
-        this.duration = info.duration
-        this.timestamp = new Date(info.stats.birthtime)
-
-        RecordingsModel.recordings.sort((a,b) => {
-          if(a.timestamp < b.timestamp)
-            return 1
-
-          else if(a.timestamp > b.timestamp)
-            return -1
-
-          else {
-            return 0
-          }
-        })
-      }
-
-      else {
-        this.duration = -1
-        console.log(err)
-        if(retry) {
-          setTimeout(() => { this.readInfo(false)}, 3000)
-        }
-      }
-    })
-  }
-
-  createTranscript() {
-
-      const txtPath = this.path.slice(0, -4)+'.txt';
-
-      fs.readFile(txtPath, 'utf-8', (err, data) => {
-          if(err) {
-              console.log('Getting transcript of ' + this.path);
-              this.transcription = 'Processing...'
-              speechToText.processFile(this.path)
-              .then(transcription => {
-                  this.transcription = transcription;
-                  fs.writeFile(txtPath, transcription, (err) => {
-                      if(err) console.log(err);
-                  })
-              })
-              .catch(err => {
-                  console.log(err);
-                  this.transcription = "Couldn't process";
-              });
-          }
-
-          else {
-              this.transcription = data;
-          }
-      });
-  }
-
-  play() {
-    this.isPlaying = true
-
-    this.audio = new Audio(this.path)
-
-    this.audio.onended = () => {
-
-      this.isPlaying = false
-      this.audio = undefined
-    }
-
-    this.audio.play()
-  }
-
-  stop() {
-    this.isPlaying = false
-
-    if(typeof(this.audio) != 'undefined') {
-
-      this.audio.pause()
-      this.audio = undefined
-    }
-  }
-
-  saveTranscription() {
-      const txtPath = this.path.slice(0, -4)+'.txt'
-      fs.writeFile(txtPath, this.transcription + this.potentialTranscription, (err) => {
-          if(err) console.log(err);
-      })
-  }
 
 }
 
 // Recording model
 const RecordingsModel = new Vue({
-  el: '#recordings-table',
-  data: {
-    recordings: [],
-    fuzzyRecordings: [],
-    workspacePath: localStorage.workspacePath,
-    recordingEnabled: false,
-    filter: '',
-    hovering: null,
-  },
-  computed: {
-      transcription: function() {
-          if(this.hovering) return this.hovering.transcription + this.hovering.potentialTranscription;
-          else return '';
-      },
-      selectedRecordings: function() {
-          return this.recordings.filter(recording => {return recording.filename.includes(this.filter)});
-      },
-      selectedFuzzyRecordings: function() {
-          return this.fuzzyRecordings.filter(recording => {return recording.filename.includes(this.filter)});
-      }
-  },
-  methods: {
-    removeRecording(filepath) {
+    el: '#recordings-table',
+    data: {
+        recordings: [],
+        fuzzyRecordings: [],
+        workspacePath: localStorage.workspacePath,
+        recordingEnabled: localStorage.workspacePath,
+        filter: '',
+        hovering: null,
+    },
+    computed: {
+        transcription: function() {
+            if(this.hovering) return this.hovering.transcription + this.hovering.potentialTranscription;
+            else return '';
+        },
+        selectedRecordings: function() {
+            return this.recordings.filter(recording => {return recording.filename.includes(this.filter)});
+        },
+        selectedFuzzyRecordings: function() {
+            return this.fuzzyRecordings.filter(recording => {return recording.filename.includes(this.filter)});
+        }
+    },
+    methods: {
+        removeRecording(filepath) {
 
-      console.log(`Deleting ${filepath}`)
-      fs.unlinkSync(filepath)
-      fs.unlinkSync(filepath.slice(0, -4)+'.txt')
+            console.log(`Deleting ${filepath}`)
+            fs.unlinkSync(filepath)
+            fs.unlinkSync(filepath.slice(0, -4)+'.txt')
 
-      this.recordings = this.recordings.filter((rec) => {return rec.path !== filepath})
-      this.hovering = null
+            this.recordings = this.recordings.filter((rec) => {return rec.path !== filepath})
+            this.hovering = null
+        }
     }
-  }
 })
 
 // Changing Workspace
 const changeWorkspace = function() {
-  console.log("Changing workspace...")
+    console.log("Changing workspace...")
 
-  dialog.showOpenDialog(
-    { properties: ['openDirectory'], title: 'Chooser workspace folder'},
-      function (files) {
+    dialog.showOpenDialog(
+        { properties: ['openDirectory'], title: 'Chooser workspace folder'},
+        function (files) {
 
-        if(files) {
+            if(files) {
 
-          let path = files[0]
-          RecordingsModel.workspacePath = path
-          localStorage.workspacePath = path
-          createList(path)
+                let path = files[0]
+                RecordingsModel.workspacePath = path
+                localStorage.workspacePath = path
+                createList(path)
 
-          ipcRenderer.send('stop-recording')
-          ipcRenderer.send('start-recording', path)
-        }
-  })
+                ipcRenderer.send('stop-recording')
+                ipcRenderer.send('start-recording', path)
+            }
+        })
 }
 
 // Create file list
 const createList = function(workspace) {
 
-  RecordingsModel.recordings = []
+    RecordingsModel.recordings = []
 
-  fs.readdir(workspace, (err, files) => {
-    files.forEach(file => {
+    fs.readdir(workspace, (err, files) => {
+        files.forEach(file => {
 
-      console.log(file)
-      if(path.extname(file).toLowerCase() === '.wav')
-        RecordingsModel.recordings.push(new Recording(path.join(RecordingsModel.workspacePath,file)))
+            console.log(file)
+            if(path.extname(file).toLowerCase() === '.wav')
+                RecordingsModel.recordings.push(new Recording(path.join(RecordingsModel.workspacePath,file)))
+        })
     })
-  })
 }
 
 // Delete all recordings from workspace
@@ -221,7 +224,7 @@ const deleteAll = function() {
             files.forEach(file => {
                 try {
                     if(path.extname(file).toLowerCase() === '.wav')
-                       fs.unlinkSync(path.join(RecordingsModel.workspacePath,file));
+                        fs.unlinkSync(path.join(RecordingsModel.workspacePath,file));
                     else if(path.extname(file).toLowerCase() === '.txt')
                         fs.unlinkSync(path.join(RecordingsModel.workspacePath,file));
                 }
@@ -239,22 +242,21 @@ const deleteAll = function() {
 
 // Control recording
 const recordControl = function() {
-  if(RecordingsModel.recordingEnabled) {
-    if(typeof(RecordingsModel.workspacePath)!='undefined') {
-      ipcRenderer.send('start-recording', RecordingsModel.workspacePath)
-      console.log('Start recording at ' + RecordingsModel.workspacePath)
-    }
+    if(RecordingsModel.recordingEnabled) {
+        if(typeof(RecordingsModel.workspacePath)!='undefined') {
+            ipcRenderer.send('start-recording', RecordingsModel.workspacePath)
+            console.log('Start recording at ' + RecordingsModel.workspacePath)
+        }
 
+        else {
+            alert('You must set workspace path to enable recording!')
+            RecordingsModel.recordingEnabled = false
+        }
+    }
     else {
-      alert('You must set workspace path to enable recording!')
-      RecordingsModel.recordingEnabled = false
+        ipcRenderer.send('stop-recording')
+        console.log('Stop recording')
     }
-  }
-
-  else {
-    ipcRenderer.send('stop-recording')
-    console.log('Stop recording')
-  }
 }
 
 // Receive recordings from main process
@@ -271,7 +273,7 @@ ipcRenderer.on('add-recording', (event, filename) => {
 
 ipcRenderer.on('fuzzy-recording', (event, filename) => {
 
-  RecordingsModel.fuzzyRecordings.unshift(new FuzzyRecording(filename))
+    RecordingsModel.fuzzyRecordings.unshift(new FuzzyRecording(filename))
 })
 
 ipcRenderer.on('fuzzy-transcript', (event, filename, data) => {
@@ -324,11 +326,13 @@ ipcRenderer.on('fuzzy-transcript', (event, filename, data) => {
 
 // Close window and stop recording
 const quit = function() {
-  ipcRenderer.send('stop-recording')
-  window.close()
+    //ipcRenderer.send('stop-recording')
+    window.close()
 }
 
 // Initialise list after page has loaded
 
-if(typeof(RecordingsModel.workspacePath) != 'undefined')
-  createList(RecordingsModel.workspacePath)
+if(typeof(RecordingsModel.workspacePath) != 'undefined') {
+    createList(RecordingsModel.workspacePath)
+    ipcRenderer.send('start-recording', RecordingsModel.workspacePath)
+}

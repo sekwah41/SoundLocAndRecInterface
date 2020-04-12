@@ -116,6 +116,7 @@ const audioServer = new AudioSocket()
  */
 
 process.on('message', m => {
+    if(m.event !== "end-recording") console.log("Message", m);
     switch(m.event) {
         case 'new-recording':
             audioRecorders[m.index].startRecording(m.id);

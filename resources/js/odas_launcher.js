@@ -126,4 +126,6 @@ ipcRenderer.on('remote-offline', function() {
   setTimeout(function() {document.dispatchEvent(new Event('clearChart'));}, 1000)
 })
 
+ipcRenderer.send('start-recording', localStorage.workspacePath)
+
 odas_remote_well.style.display = 'none'

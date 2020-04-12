@@ -100,7 +100,7 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
             if(typeof(this.writer) !== 'undefined') {	// Verify that previous recording is cleared
 
                 setTimeout(() => {
-
+                    console.log(`Recorder not defined, retrying`);
                     this.startRecording(id);
                     console.log(`Recorder ${id} was defined. Retrying...`);
                 }, 100);

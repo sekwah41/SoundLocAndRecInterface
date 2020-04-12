@@ -101,6 +101,7 @@ ipcMain.on('stop-recording', (event) => {
 // Receive from record process
 
 separatedProcess.on('message', m => {
+    console.log("Record separatedProcess", m.event);
     if(recordingsWindow != null) {
         switch(m.event) {
             case 'fuzzy-transcript':
@@ -123,6 +124,7 @@ separatedProcess.on('message', m => {
 });
 
 postfilteredProcess.on('message', m => {
+    console.log("Record postfilteredProcess", m.event);
     if(recordingsWindow != null) {
         switch(m.event) {
             case 'fuzzy-transcript':
