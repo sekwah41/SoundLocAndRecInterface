@@ -116,6 +116,11 @@ separatedProcess.on('message', m => {
                 recordingsWindow.webContents.send('add-recording', m.filename);
                 break;
 
+            case 'audio-analyse':
+
+                // TODO pipe data into another
+                break;
+
             default:
                 console.warn(`Unhandled recording process message ${m}`);
                 break;

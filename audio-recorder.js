@@ -46,7 +46,8 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
 
         if(this.active) {
 
-            if(this.samplesWritten++ % clipSize === 0) {
+            if(this.split_output && this.samplesWritten++ % clipSize === clipSize - 1) {
+                this.splitNewFile();
                 console.log(this.samplesWritten);
             }
 
@@ -83,7 +84,7 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
                 }
 
                 catch(err) {
-
+                    console.log("Thar be errors", this.writer, this.current_id);
                     console.error(`Couldn't write to recorder ${this.index}`);
                     console.warn(err);
 
@@ -98,17 +99,17 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
     splitNewFile() {
         if(this.recordingEnabled && this.active) {
 
-            console.log(`Recorder ${this.index} ended`);
+            console.log(`Recorder ${this.index} split`);
 
-            console.log(`Registering header on recorder ${this.index}`);
             this.writer.end();
 
-            this.writer.on('header',(header) => {
+            let tempWriter = this.writer;
+
+            tempWriter.on('header',(header) => {
 
                 console.log(`Registered header on recorder ${this.index}`);
-                this.emit('add-recording', this.writer.path);
-
-                this.writer = undefined;
+                this.emit('audio-analyse', tempWriter.path);
+                this.emit('add-recording', tempWriter.path);
                 console.log(`Recorder ${this.index} undefined`);
 
             });
@@ -117,12 +118,12 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
 
             console.log(`Recorder ${this.index} split file`);
 
-            let filename = path.join(this.workspacePath, `ODAS_${id}_${this.timestamp}_${this.split_count}_${this.suffix}.wav`);
+            let filename = path.join(this.workspacePath, `ODAS_${this.current_id}_${this.timestamp}_${++this.split_count}_${this.suffix}.wav`);
             this.path = filename;
 
             try {
                 this.writer = new wav.FileWriter(filename,{channels:1, sampleRate:appSettings.sampleRate, bitDepth:bitNumber});
-                this.emit('fuzzy-recording', filename);
+                // this.emit('fuzzy-recording', filename);
 
                 this.writer.on('drain', () => { // Release hold when write stream is cleared
                     console.log(`Writer ${this.index} is empty.\nResuming...`);
@@ -131,7 +132,8 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
 
                 this.active = true;
                 this.hold = false;
-                this.buffer = undefined;
+                console.log("new writer created", this.current_id);
+                // this.buffer = undefined;
             }
 
             catch(err) {
@@ -144,6 +146,7 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
 
     startRecording(id) {
         if(this.recordingEnabled) {
+            this.current_id = id;
             this.split_count = 0;
             if(typeof(this.writer) !== 'undefined') {	// Verify that previous recording is cleared
 
