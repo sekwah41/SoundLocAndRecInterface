@@ -1,6 +1,6 @@
 const streamToText = require('./stream-to-text.js');
 const path = require('path');
-const wav = require('wav')
+const wav = require('wav');
 const EventEmitter = require('events');
 const appSettings = require('./settings.js').appSettings;
 
@@ -8,9 +8,9 @@ const appSettings = require('./settings.js').appSettings;
  * Audio parameters
  */
 
-const bitNumber = 16
+const bitNumber = 16;
 
-const clipSize = 16000 * 15;
+const clipSize = 16000/* * 1*/;
 
 /*
     End of parameters
@@ -36,25 +36,17 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
         this.writer = undefined;
         this.path = undefined;
 
-        this.transcripter = new streamToText.Transcripter();
-
-        this.transcripter.on('data', data => {
-            this.emit('fuzzy-transcript', this.path, data);
-            console.log(data);
-        });
-
-        this.transcripter.on('error', err => {
-            console.error(err);
-        });
+        this.split_output = suffix === 'sp';
+        this.current_id = -1;
+        this.timestamp = "";
+        this.split_count = 0;
     }
 
     receive(data) {
 
-        console.log(data);
-
         if(this.active) {
 
-            if(this.samplesWritten++ % 1000) {
+            if(this.samplesWritten++ % clipSize === 0) {
                 console.log(this.samplesWritten);
             }
 
@@ -100,44 +92,33 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
 
             }
 
-            this.transcripter.putData(data);
-
         }
     }
 
-    startRecording(id) {
-        if(this.recordingEnabled) {
-            if(typeof(this.writer) !== 'undefined') {	// Verify that previous recording is cleared
+    splitNewFile() {
+        if(this.recordingEnabled && this.active) {
 
-                setTimeout(() => {
-                    console.log(`Recorder not defined, retrying`);
-                    this.startRecording(id);
-                    console.log(`Recorder ${id} was defined. Retrying...`);
-                }, 100);
+            console.log(`Recorder ${this.index} ended`);
 
-                return;
-            }
+            console.log(`Registering header on recorder ${this.index}`);
+            this.writer.end();
 
-            console.log(`Recorder ${this.index} started`)
-            console.log(`Recorder ${this.index} was ${this.active} active`)
+            this.writer.on('header',(header) => {
 
-            let now = new Date()
+                console.log(`Registered header on recorder ${this.index}`);
+                this.emit('add-recording', this.writer.path);
 
-            let dateString = ""
-            dateString += now.getFullYear() + "-"
-            dateString += (now.getMonth()+1) + "-"
-            dateString += now.getDate()
+                this.writer = undefined;
+                console.log(`Recorder ${this.index} undefined`);
 
-            let timeString = ""
-            timeString += now.getHours() + "-"
-            timeString += now.getMinutes() + "-"
-            timeString += now.getSeconds() + "-"
-            timeString += now.getMilliseconds()
+            });
 
-            let datetimeString = dateString + "_" + timeString
+            // Start again
 
-            let filename = path.join(this.workspacePath, `ODAS_${id}_${datetimeString}_${this.suffix}.wav`)
-            this.path = filename
+            console.log(`Recorder ${this.index} split file`);
+
+            let filename = path.join(this.workspacePath, `ODAS_${id}_${this.timestamp}_${this.split_count}_${this.suffix}.wav`);
+            this.path = filename;
 
             try {
                 this.writer = new wav.FileWriter(filename,{channels:1, sampleRate:appSettings.sampleRate, bitDepth:bitNumber});
@@ -151,7 +132,65 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
                 this.active = true;
                 this.hold = false;
                 this.buffer = undefined;
-                this.transcripter.start();
+            }
+
+            catch(err) {
+                console.error(`Failed to start recorder ${this.index}`);
+                console.log(err);
+                this.writer = undefined;
+            }
+        }
+    }
+
+    startRecording(id) {
+        if(this.recordingEnabled) {
+            this.split_count = 0;
+            if(typeof(this.writer) !== 'undefined') {	// Verify that previous recording is cleared
+
+                setTimeout(() => {
+                    console.log(`Recorder not defined, retrying`);
+                    this.startRecording(id);
+                    console.log(`Recorder ${id} was defined. Retrying...`);
+                }, 100);
+
+                return;
+            }
+
+            console.log(`Recorder ${this.index} started`);
+            console.log(`Recorder ${this.index} was ${this.active} active`);
+
+            let now = new Date();
+
+            let dateString = "";
+            dateString += now.getFullYear() + "-";
+            dateString += (now.getMonth()+1) + "-";
+            dateString += now.getDate();
+
+            let timeString = "";
+            timeString += now.getHours() + "-";
+            timeString += now.getMinutes() + "-";
+            timeString += now.getSeconds() + "-";
+            timeString += now.getMilliseconds();
+
+            let datetimeString = dateString + "_" + timeString;
+
+            this.timestamp = datetimeString;
+
+            let filename = path.join(this.workspacePath, `ODAS_${id}_${this.timestamp}_${this.suffix}.wav`);
+            this.path = filename;
+
+            try {
+                this.writer = new wav.FileWriter(filename,{channels:1, sampleRate:appSettings.sampleRate, bitDepth:bitNumber});
+                this.emit('fuzzy-recording', filename);
+
+                this.writer.on('drain', () => { // Release hold when write stream is cleared
+                    console.log(`Writer ${this.index} is empty.\nResuming...`);
+                    this.hold = false;
+                });
+
+                this.active = true;
+                this.hold = false;
+                this.buffer = undefined;
             }
 
             catch(err) {
@@ -168,7 +207,6 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
 
             this.active = false;
             console.log(`Recorder ${this.index} ended`);
-            this.transcripter.stop();
 
             console.log(`Registering header on recorder ${this.index}`);
             this.writer.end();
@@ -194,4 +232,4 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
         this.recordingEnabled = false;
         this.stopRecording();
     }
-}
+};
