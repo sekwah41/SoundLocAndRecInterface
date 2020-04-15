@@ -1521,7 +1521,7 @@ var windowIsDefined = (typeof window === "undefined" ? "undefined" : _typeof(win
 				// use natural arrow keys instead of from min to max
 				if (this.options.natural_arrow_keys) {
 					var ifVerticalAndNotReversed = this.options.orientation === 'vertical' && !this.options.reversed;
-					var ifHorizontalAndReversed = this.options.orientation === 'horizontal' && this.options.reversed; // @todo control with rtl
+					var ifHorizontalAndReversed = this.options.orientation === 'horizontal' && this.options.reversed;
 
 					if (ifVerticalAndNotReversed || ifHorizontalAndReversed) {
 						dir = -dir;
