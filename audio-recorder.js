@@ -10,6 +10,8 @@ const appSettings = require('./settings.js').appSettings;
 
 const bitNumber = 16
 
+const clipSize = 16000 * 15;
+
 /*
     End of parameters
 */
@@ -27,6 +29,8 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
         this.recordingEnabled = false;
         this.workspacePath = '';
         this.suffix = suffix;
+
+        this.samplesWritten = 0;
 
         this.buffer = undefined;
         this.writer = undefined;
@@ -46,7 +50,13 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
 
     receive(data) {
 
+        console.log(data);
+
         if(this.active) {
+
+            if(this.samplesWritten++ % 1000) {
+                console.log(this.samplesWritten);
+            }
 
             if(this.hold) {
 

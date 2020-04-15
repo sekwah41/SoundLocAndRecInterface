@@ -84,7 +84,7 @@ class Recording {
     }
 
     createTranscript() {
-        console.log("Create transcript");
+        /*console.log("Create transcript");
 
         const txtPath = this.path.slice(0, -4)+'.txt';
 
@@ -108,7 +108,7 @@ class Recording {
             else {
                 this.transcription = data;
             }
-        });
+        });*/
     }
 
     play() {
@@ -136,6 +136,7 @@ class Recording {
     }
 
     saveTranscription() {
+        console.log("TRANSCRIPT")
         const txtPath = this.path.slice(0, -4)+'.txt'
         fs.writeFile(txtPath, this.transcription + this.potentialTranscription, (err) => {
             if(err) console.log(err);
@@ -172,7 +173,7 @@ const RecordingsModel = new Vue({
 
             console.log(`Deleting ${filepath}`)
             fs.unlinkSync(filepath)
-            fs.unlinkSync(filepath.slice(0, -4)+'.txt')
+            //fs.unlinkSync(filepath.slice(0, -4)+'.txt')
 
             this.recordings = this.recordings.filter((rec) => {return rec.path !== filepath})
             this.hovering = null
@@ -229,7 +230,7 @@ const deleteAll = function() {
                         fs.unlinkSync(path.join(RecordingsModel.workspacePath,file));
                 }
                 catch(e) {
-                    console.warn(`Couln'd delete ${file}`);
+                    console.warn(`Couldn't delete ${file}`);
                     console.error(e);
                 }
             });
@@ -313,14 +314,14 @@ ipcRenderer.on('fuzzy-transcript', (event, filename, data) => {
 
     else {
 
-        data.map(result => {
+        /*data.map(result => {
 
             if(result.is_final) {
                 target[0].transcription += result.alternatives[0].transcript
             }
-        })
+        })*/
 
-        target[0].saveTranscription()
+        //target[0].saveTranscription()
     }
 })
 
@@ -334,5 +335,5 @@ const quit = function() {
 
 if(typeof(RecordingsModel.workspacePath) != 'undefined') {
     createList(RecordingsModel.workspacePath)
-    ipcRenderer.send('start-recording', RecordingsModel.workspacePath)
+    // ipcRenderer.send('start-recording', RecordingsModel.workspacePath)
 }

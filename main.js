@@ -52,7 +52,7 @@ function createWindow () {
 
   odasStudio.mainWindow.on('ready-to-show', function() {
     odasStudio.mainWindow.show()
-    odasStudio.mainWindow.maximize();
+    // odasStudio.mainWindow.maximize();
   })
 }
 

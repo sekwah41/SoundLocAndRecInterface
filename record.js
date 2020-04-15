@@ -47,8 +47,8 @@ function createWindow () {
 
         // Emitted when the window is closed.
         recordingsWindow.on('closed', function () {
-            if(separatedProcess.connected)
-                separatedProcess.send({event:'stop-recording'});
+            /*if(separatedProcess.connected)
+                separatedProcess.send({event:'stop-recording'});*/
             recordingsWindow = null;
         });
 
