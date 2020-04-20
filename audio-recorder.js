@@ -36,7 +36,7 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
         this.writer = undefined;
         this.path = undefined;
 
-        this.split_output = suffix === 'sp';
+        this.split_output = suffix === 'pf';
         this.current_id = -1;
         this.timestamp = "";
         this.split_count = 0;
