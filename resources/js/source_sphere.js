@@ -277,7 +277,7 @@ document.addEventListener('tracking', function(e) {
 
     // Update source on sphere
     currentFrame.sources.forEach(function(source,index) {
-
+        console.log(index, source);
         sources3D[index].visible = filterManager.showSources && source.active && source.selected && !(source.x == 0 && source.y == 0 && source.z == 0);
 
         sources3D[index].position.x = source.x;
@@ -301,6 +301,7 @@ document.addEventListener('tracking', function(e) {
 // Update visibility when selection is changed
 document.addEventListener('update-selection',function(e){
 
+    // TODO INTEREST!!!!!!
     currentFrame.sources.forEach(function(source,index) {
         sources3D[index].visible =  filterManager.showSources && source.active && source.selected && !(source.x == 0 && source.y == 0 && source.z == 0);
     });

@@ -2,6 +2,12 @@ Sound Localisation & Recognition
 ======
 This is built on top of [ODAS](https://github.com/introlab/odas_web). Altering the frontend to give only the info I need with a few fixes and changes to make it more useable as well as a pipeline to run segments of audio through code to get feedback. More details can be found about the other components [here](https://github.com/sekwah41/SoundLocalisationAndRecognition) (will make this visible once the project has been submitted).
 
+# Start raspberry pi with kiosk mode on ui feedback
+```shell script
+export DISPLAY=:0
+chromium-browser -kiosk <odas-ip>:8080
+```
+
 # ODAS Studio
 A desktop user interface for the [ODAS](https://github.com/introlab/odas) library
 
