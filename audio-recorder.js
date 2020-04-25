@@ -48,7 +48,7 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
 
             if(this.split_output && this.samplesWritten++ % clipSize === clipSize - 1) {
                 this.splitNewFile();
-                console.log(this.samplesWritten);
+
             }
 
             if(this.hold) {
@@ -108,9 +108,10 @@ exports.AudioRecorder =  class AudioRecorder extends EventEmitter {
             tempWriter.on('header',(header) => {
 
                 console.log(`Registered header on recorder ${this.index}`);
-                this.emit('audio-analyse', tempWriter.path);
                 this.emit('add-recording', tempWriter.path);
                 console.log(`Recorder ${this.index} undefined`);
+
+                this.emit('audio-analyse', {id:this.current_id, path: tempWriter.path});
 
             });
 

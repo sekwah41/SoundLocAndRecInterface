@@ -8,8 +8,6 @@ const electron = require('electron')
 const ipcMain = electron.ipcMain
 const child_process = require('child_process')
 
-const web_feedback = require('./webview/simplefeedback_display');
-
 ipcMain.on('launch-odas', function(event, core, config) {
 
   console.log('received launch command')
@@ -17,8 +15,6 @@ ipcMain.on('launch-odas', function(event, core, config) {
   console.log(config)
 
   exports.odas_process = child_process.spawn(core, ['-c', config]);
-
-  web_feedback.setup();
 
   event.sender.send('launched-odas', true);
 })

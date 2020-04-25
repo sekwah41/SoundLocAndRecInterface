@@ -5,6 +5,7 @@ const url = require('url')
 
 const BrowserWindow = electron.BrowserWindow;
 const ipcMain = electron.ipcMain;
+const web_feedback = require('./webfeedback');
 
 /*
  * Start the recording process
@@ -74,6 +75,11 @@ ipcMain.on('new-recording', (event, index, id) => {
         postfilteredProcess.send({event:'new-recording', index:index, id:id});
 });
 
+ipcMain.on('sound-sources', (data) => {
+    console.log(web_feedback);
+    //process.emit('sound-sources', data);
+});
+
 ipcMain.on('end-recording', (event, index) => {
     if(separatedProcess.connected)
         separatedProcess.send({event:'end-recording', index:index});
@@ -116,11 +122,6 @@ separatedProcess.on('message', m => {
                 recordingsWindow.webContents.send('add-recording', m.filename);
                 break;
 
-            case 'audio-analyse':
-
-                // TODO pipe data into another
-                break;
-
             default:
                 console.warn(`Unhandled recording process message ${m}`);
                 break;
@@ -130,6 +131,9 @@ separatedProcess.on('message', m => {
 
 postfilteredProcess.on('message', m => {
     console.log("Record postfilteredProcess", m.event);
+    if(m.event === 'audio-analyse') {
+        web_feedback.audioSection(m.data);
+    }
     if(recordingsWindow != null) {
         switch(m.event) {
             case 'fuzzy-transcript':

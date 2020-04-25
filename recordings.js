@@ -35,8 +35,8 @@ for(i=0; i<nChannels; i++) {
         process.send({event:'fuzzy-recording', filename:filename});
     });
 
-    recorder.on('audio-analyse', filename => {
-        process.send({event:'audio-analyse', filename:filename});
+    recorder.on('audio-analyse', data => {
+        process.send({event:'audio-analyse', data:data});
     })
 
     recorder.on('add-recording', filename => {

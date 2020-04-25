@@ -10,6 +10,8 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 
+const web_feedback = require('./webfeedback');
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let odasStudio = {}
@@ -53,7 +55,7 @@ function createWindow () {
   odasStudio.mainWindow.on('ready-to-show', function() {
     odasStudio.mainWindow.show()
     // odasStudio.mainWindow.maximize();
-  })
+  });
 }
 
 // This method will be called when Electron has finished
