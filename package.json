@@ -4,7 +4,8 @@
   "description": "A desktop GUI for the ODAS library",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "webfeedback": "node only_webfeedback.js"
   },
   "author": "Cedric Godin",
   "license": "MIT",
@@ -13,10 +14,15 @@
   },
   "dependencies": {
     "@google-cloud/speech": "^3.2.0",
+    "autoprefixer-core": "^6.0.1",
+    "express": "^4.17.1",
     "grpc": "^1.24.2",
     "ip": "^1.1.5",
     "mathjs": "^6.0.1",
     "node-localstorage": "^1.3.1",
+    "pug": "^2.0.4",
+    "sass": "^1.26.5",
+    "socket.io": "^2.3.0",
     "systeminformation": "^4.9.0",
     "wav": "^1.0.2",
     "wav-file-info": "0.0.8"

@@ -1,0 +1,26 @@
+body {
+  margin:0;
+  background: #191919;
+}
+
+#display {
+  width: 900px;
+  height: 900px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#user {
+  width: 150px;
+  height:150px;
+  background: url("user.svg") no-repeat center center;
+  background-size: contain;
+
+}
+
+.center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
