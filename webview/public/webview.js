@@ -3,6 +3,10 @@ let socket;
 
 let reloadOnConnect = false;
 
+function rotateSound(id) {
+
+}
+
 window.onload = function() {
     socket = io.connect(window.location.href);
 

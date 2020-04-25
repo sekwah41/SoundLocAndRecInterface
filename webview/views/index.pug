@@ -1,3 +1,4 @@
+- var sounds = 0;
 html
     head
         title= title
@@ -8,3 +9,13 @@ html
     body
         #display.center
             #user.center
+            #ring.center
+                while sounds < max_sources
+                    .soundarm(id= "soundrot" + sounds)
+                        .soundinfooffset
+                            .soundinfo
+                                span.soundtype= `{{${sounds}}}`
+                                br
+                                span.soundpercent 0%
+                    - sounds++;
+

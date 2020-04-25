@@ -15,6 +15,8 @@ let server;
 
 let io;
 
+let max_sources = 4;
+
 function renderSCSS(file, data = null) {
     let result = sass.renderSync({
         file: file,
@@ -39,10 +41,26 @@ catch(e) {
 }
 
 app.get('/', function (req, res) {
-    res.render('index', { title: 'Sound Rec & Loc Interface', max_sources: 4 })
+    res.render('index', { title: 'Sound Rec & Loc Interface', max_sources: max_sources })
 });
 
+let soundData = [];
+
+for(let i = 0; i < max_sources; i++) {
+    soundData.push({label:"not_set",
+        probability: 0,
+        angle: 0,
+        show: false});
+}
+
+
 module.exports = {};
+
+module.exports.send_sound_info = (id, sound_label, angle, probability) => {
+    let sound = soundData[id];
+    sound.label = angle;
+    sound.
+};
 
 module.exports.setup = (debug = false) => {
     server = app.listen((process.env.PORT || 8080), function() {
@@ -59,26 +77,30 @@ module.exports.setup = (debug = false) => {
         socket.emit("init", {data:"initinfo"});
     });
 
-    let reload = () => {
-        io.emit('reload', {reason:"TEST"});
-    };
-
     //io.emit("progress", data);
 
     if(debug) {
+        let reload = () => {
+            io.emit('reload', {reason:"TEST"});
+        };
+
+        let renderTimeout;
+
         fs.watch(style_loc, (event, file) => {
-            console.log(event);
-            try {
-                renderSCSS(style_loc);
-            }
-            catch(e) {
-                console.error(e.stack);
-            }
-            reload();
+            clearTimeout(renderTimeout);
+            renderTimeout = setTimeout(() => {
+                console.log("Re-Render")
+                try {
+                    renderSCSS(style_loc);
+                }
+                catch(e) {
+                    console.error(e.stack);
+                }
+                reload();
+            }, 50);
         });
 
         fs.watch(path.join(__dirname, 'views', 'index.pug'), (event, file) => {
-            console.log("pugggg");
             reload();
         });
     }
