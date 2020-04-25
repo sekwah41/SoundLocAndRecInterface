@@ -47,7 +47,8 @@ app.get('/', function (req, res) {
 let soundData = [];
 
 for(let i = 0; i < max_sources; i++) {
-    soundData.push({label:"not_set",
+    soundData.push({id:0,
+        label:"not_set",
         probability: 0,
         angle: 0,
         show: false});
@@ -56,10 +57,13 @@ for(let i = 0; i < max_sources; i++) {
 
 module.exports = {};
 
-module.exports.send_sound_info = (id, sound_label, angle, probability) => {
+module.exports.send_sound_info = (id, sound_label, angle, probability, show) => {
     let sound = soundData[id];
-    sound.label = angle;
-    sound.
+    sound.id = id;
+    sound.label = sound_label;
+    sound.angle = angle;
+    sound.probability = probability;
+    sound.show = show;
 };
 
 module.exports.setup = (debug = false) => {
@@ -76,6 +80,10 @@ module.exports.setup = (debug = false) => {
         console.log("Webclient connected");
         socket.emit("init", {data:"initinfo"});
     });
+
+    setInterval(() => {
+        io.emit("sounds", soundData);
+    }, 1000);
 
     //io.emit("progress", data);
 
@@ -98,6 +106,10 @@ module.exports.setup = (debug = false) => {
                 }
                 reload();
             }, 50);
+        });
+
+        fs.watch(path.join(__dirname, 'public', 'webview.js'), (event, file) => {
+            reload();
         });
 
         fs.watch(path.join(__dirname, 'views', 'index.pug'), (event, file) => {

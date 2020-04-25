@@ -8,13 +8,13 @@ body {
   background: #191919;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: white;
-  font-size: 25px;
+  font-size: 50px;
 }
 
 #display {
   width: $displaySize;
   height: $displaySize;
-  background: rgba(255, 255, 255, 0.06);
+  //background: rgba(255, 255, 255, 0.06);
 }
 
 #user {
@@ -36,8 +36,18 @@ body {
   position: absolute;
   transition: transform 0.8s;
   width: #{$ringSize / 2};
-  transform: translateX(50%) translateY($ringSize / 2) rotate(-45deg) translateX(50%);
+  transform: translateX(50%) translateY($ringSize / 2) rotate(0deg) translateX(50%);
   height: 0;
+  z-index: 1;
+
+  &.warning {
+    z-index: 5;
+    .soundinfooffset .soundinfo {
+      color:red;
+      font-weight: bold;
+      filter: drop-shadow(0px 0px 10px rgb(255, 0, 0));
+    }
+  }
 }
 
 .soundinfooffset {
@@ -48,13 +58,19 @@ body {
 
 .soundinfo {
   //transform: rotate(0deg);
-  transition: transform 0.8s;
+  transition: transform 0.8s, opacity 0.8s;
   width: 200px;
   text-align: center;
+  opacity: 1;
+
+  &.hidden {
+    transition: transform 0.8s, opacity 2s;
+    opacity: 0;
+  }
 }
 
 .soundpercent {
-  display:none;
+  //display:none;
 }
 
 .center {

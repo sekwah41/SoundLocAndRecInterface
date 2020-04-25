@@ -2,9 +2,10 @@
 html
     head
         title= title
+        meta(name="viewport" content="width=1200px")
+        meta(name="mobile-web-app-capable" content="yes")
         script(src='socket.io.js')
         script(src='webview.js')
-
         link(href='style.css' rel='stylesheet')
     body
         #display.center
@@ -13,7 +14,7 @@ html
                 while sounds < max_sources
                     .soundarm(id= "soundrot" + sounds)
                         .soundinfooffset
-                            .soundinfo
+                            .soundinfo.hidden
                                 span.soundtype= `{{${sounds}}}`
                                 br
                                 span.soundpercent 0%
