@@ -14,7 +14,7 @@ function setSoundData(sound) {
     soundArm.style.transform = `translateX(50%) translateY(${ringSize/2}px) rotate(${sound.angle}deg) translateX(50%)`;
     soundInfo.style.transform = `rotate(${-sound.angle}deg)`
     soundArm.querySelector('.soundtype').textContent = sound.label;
-    soundArm.querySelector('.soundpercent').textContent = Math.floor(sound.probability) + '%';
+    soundArm.querySelector('.soundpercent').textContent = Math.floor(parseFloat(sound.probability) * 100) + '%';
     console.log(sound.hidden);
     if(!sound.show) {
         if(!soundInfo.classList.contains("hidden")) {
@@ -27,12 +27,12 @@ function setSoundData(sound) {
         }
     }
     if(warning_sounds.indexOf(sound.label) !== -1) {
-        if(!soundInfo.classList.contains("warning")) {
+        if(!soundArm.classList.contains("warning")) {
             soundArm.classList.add("warning");
         }
     }
     else {
-        if(soundInfo.classList.contains("warning")) {
+        if(soundArm.classList.contains("warning")) {
             soundArm.classList.remove("warning");
         }
     }

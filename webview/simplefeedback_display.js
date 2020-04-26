@@ -43,6 +43,11 @@ catch(e) {
 app.get('/', function (req, res) {
     res.render('index', { title: 'Sound Rec & Loc Interface', max_sources: max_sources })
 });
+/*
+app.post('/predict', function (req, res) {
+    console.log(req);
+    res.render('index', { title: 'Sound Rec & Loc Interface', max_sources: max_sources })
+});*/
 
 let soundData = [];
 
