@@ -29,6 +29,7 @@ function setSoundData(sound) {
     if(warning_sounds.indexOf(sound.label) !== -1) {
         if(!soundArm.classList.contains("warning")) {
             soundArm.classList.add("warning");
+            window.navigator.vibrate(200);
         }
     }
     else {
