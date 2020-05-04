@@ -29,7 +29,7 @@ function setSoundData(sound) {
     if(warning_sounds.indexOf(sound.label) !== -1) {
         if(!soundArm.classList.contains("warning")) {
             soundArm.classList.add("warning");
-            window.navigator.vibrate(200);
+            window.navigator.vibrate(600);
         }
     }
     else {
@@ -40,6 +40,8 @@ function setSoundData(sound) {
 }
 
 window.onload = function() {
+    alert("For vibrations to be allowed you will need to tap on the page once. Yes I know googles security can be annoying.");
+
     socket = io.connect(window.location.href);
 
     socket.on('connect', () => {
