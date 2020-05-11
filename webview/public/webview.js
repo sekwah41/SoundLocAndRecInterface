@@ -7,6 +7,8 @@ let ringSize = 700;
 
 let warning_sounds = ["fire_alarm"];
 
+let caution_sounds = ["siren", "car_horn"];
+
 function setSoundData(sound) {
     let soundArm = document.querySelector(`#soundrot${sound.id}`)
     //console.log(sound);
@@ -35,6 +37,17 @@ function setSoundData(sound) {
     else {
         if(soundArm.classList.contains("warning")) {
             soundArm.classList.remove("warning");
+        }
+    }
+    if(caution_sounds.indexOf(sound.label) !== -1) {
+        if(!soundArm.classList.contains("caution")) {
+            soundArm.classList.add("caution");
+            window.navigator.vibrate(200);
+        }
+    }
+    else {
+        if(soundArm.classList.contains("caution")) {
+            soundArm.classList.remove("caution");
         }
     }
 }
