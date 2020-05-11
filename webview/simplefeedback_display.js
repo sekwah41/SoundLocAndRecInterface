@@ -72,7 +72,7 @@ module.exports.send_sound_info = (id, sound_label, angle, probability, show) => 
 };
 
 module.exports.setup = (debug = false) => {
-    server = app.listen((process.env.PORT || 8080), function() {
+    server = app.listen((process.env.PORT || 8070), function() {
         let host = server.address().address;
         let port = server.address().port;
 
