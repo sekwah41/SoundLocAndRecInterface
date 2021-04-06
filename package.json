@@ -24,7 +24,7 @@
     "pug": "^2.0.4",
     "sass": "^1.26.5",
     "socket.io": "^2.4.0",
-    "systeminformation": "^4.9.0",
+    "systeminformation": "^5.6.4",
     "wav": "^1.0.2",
     "wav-file-info": "0.0.8"
   },
